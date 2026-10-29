@@ -1,0 +1,222 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Project 1: Pakistani Social Media Content Detective</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page Section1 {
+    size: 8.5in 11.0in;
+    margin: 0.8in 0.8in 0.8in 0.8in;
+    mso-header-margin: 0.5in;
+    mso-footer-margin: 0.5in;
+    mso-paper-source: 0;
+}
+div.Section1 {
+    page: Section1;
+}
+body {
+    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.25;
+    color: #222222;
+}
+h1 {
+    font-size: 19pt;
+    color: #0b4f8a;
+    margin: 0 0 6pt 0;
+    font-weight: bold;
+    border-bottom: 2pt solid #0b4f8a;
+    padding-bottom: 3pt;
+}
+h2 {
+    font-size: 12.5pt;
+    color: #0b4f8a;
+    margin: 10pt 0 4pt 0;
+    font-weight: bold;
+}
+p {
+    margin: 0 0 5pt 0;
+}
+.meta-box {
+    background-color: #f4f7fa;
+    border-left: 4pt solid #0b4f8a;
+    padding: 6pt 10pt;
+    margin-bottom: 10pt;
+}
+.meta-item {
+    font-size: 10pt;
+    margin-bottom: 2pt;
+}
+.meta-item strong {
+    color: #1a252f;
+}
+.quote-box {
+    background-color: #fbfcfe;
+    border-left: 3pt solid #17a2b8;
+    padding: 5pt 10pt;
+    margin: 6pt 0;
+    font-style: italic;
+    font-size: 11pt;
+    font-weight: bold;
+    color: #2c3e50;
+}
+ul, ol {
+    margin: 0 0 6pt 0;
+    padding-left: 18pt;
+}
+li {
+    margin-bottom: 3pt;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6pt 0 10pt 0;
+    font-size: 9.5pt;
+}
+th {
+    background-color: #0b4f8a;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: left;
+    padding: 5pt 7pt;
+    border: 1pt solid #0b4f8a;
+}
+td {
+    padding: 4.5pt 7pt;
+    border: 1pt solid #d1d5db;
+    vertical-align: top;
+}
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+a {
+    color: #0b4f8a;
+    text-decoration: underline;
+}
+.arch-box {
+    font-family: Consolas, 'Courier New', monospace;
+    background-color: #f1f5f9;
+    border: 1pt solid #cbd5e1;
+    padding: 6pt 8pt;
+    font-size: 9pt;
+    margin: 6pt 0;
+    line-height: 1.2;
+}
+</style>
+</head>
+<body>
+<div class="Section1">
+
+<h1>Project 1: Pakistani Social Media Content Detective</h1>
+
+<div class="meta-box">
+    <div class="meta-item"><strong>Course / Track:</strong> Big Data Analytics & Applied Data Science</div>
+    <div class="meta-item"><strong>Role:</strong> Junior Digital-Marketing Data Scientist</div>
+    <div class="meta-item"><strong>GitHub Repository:</strong> <a href="https://github.com/ARSHMAN1776/Big-data-projects">https://github.com/ARSHMAN1776/Big-data-projects</a></div>
+    <div class="meta-item"><strong>Reference Benchmark:</strong> <a href="https://github.com/mrudukp/social-media-sentiment-analysis?utm_source=chatgpt.com">mrudukp/social-media-sentiment-analysis</a></div>
+</div>
+
+<h2>1. Executive Summary & Project Story</h2>
+<p>The digital ecosystem in Pakistan is experiencing exponential growth across platforms such as YouTube, Instagram, Facebook, and TikTok. However, local brands, marketing teams, and content creators frequently rely on intuition, anecdotal feedback, or imported Western frameworks rather than localized, empirical data.</p>
+<p>In this project, we move beyond basic sentiment analysis or vanity metrics (such as superficial like counts). Instead, we operate as <strong>Junior Digital-Marketing Data Scientists</strong> tasked with addressing the fundamental business question:</p>
+
+<div class="quote-box">
+“What type of social-media content gets Pakistani audiences to engage?”
+</div>
+
+<p>The <strong>Pakistani Social Media Content Detective</strong> is a modular data-mining, analytical, and AI-assisted intelligence system. It captures, normalizes, and interrogates multi-platform social media data across key Pakistani commercial verticals (e.g., Telecom, E-commerce, Banking, Fast-Moving Consumer Goods, and Digital Creators). By synthesizing quantitative engagement signals (views, shares, saves, comments) with contextual linguistic nuances (Roman Urdu, Urdu script, and Pakistani English), the project discovers actionable patterns and translates them into high-converting marketing recommendations.</p>
+
+<h2>2. Core Business Questions & Investigation Pillars</h2>
+<p>The analytical framework is structured around seven investigative pillars designed to guide Pakistani brands from raw social data to actionable strategic execution:</p>
+<ul>
+    <li><strong>Platform Superiority:</strong> <em>Which platform yields the highest reach and engagement rate per content category?</em> Evaluates whether video-first ecosystems (YouTube/TikTok) outperform image-carousel ecosystems (Instagram/Facebook) for Pakistani consumer demographics.</li>
+    <li><strong>Content Format Efficacy:</strong> <em>What format drives deeper interaction?</em> Investigates vertical short-form video (Reels/Shorts) vs. long-form narrative content, carousel explainers, infographics, and static community posts.</li>
+    <li><strong>Topic & Hashtag Resonance:</strong> <em>Which themes, localized cultural hooks, and hashtags trend effectively?</em> Uncovers high-converting cultural events (e.g., Ramadan campaigns, cricket tournaments, wedding seasons, national holidays) versus evergreen product education topics.</li>
+    <li><strong>Sentiment-Driven Engagement:</strong> <em>Does controversial, inspirational, humorous, or problem-solving tone drive higher conversion?</em> Goes beyond generic positive/negative polarities to understand localized emotional triggers (humor, national pride, value consciousness, and trust).</li>
+    <li><strong>Temporal & Cadence Optimization:</strong> <em>What days and time windows maximize audience responsiveness?</em> Identifies peak viewing windows across Pakistani lifestyle habits (post-work commute, prime-time evening hours, and weekend usage).</li>
+    <li><strong>Audience Segmentation:</strong> <em>Which demographic and regional cohorts demonstrate the highest response propensity?</em> Analyzes responsiveness across youth/Gen-Z students, tech-savvy urban professionals, Tier-2/Tier-3 city consumers, and family-oriented shoppers.</li>
+    <li><strong>Predictive Brand Playbook:</strong> <em>What should a Pakistani brand post next?</em> Uses historical data patterns to generate automated content strategies, optimal post length, visual tone, and hashtag selection.</li>
+</ul>
+
+<h2>3. System Architecture & End-to-End Workflow</h2>
+<p>The repository is built with an extensible, modular architecture that separates data ingestion, feature transformation, intelligence querying, and presentation:</p>
+
+<div class="arch-box">
+[ Multi-Source Data Collection ]  --&gt;  [ Normalization & Cleaning Pipeline ]<br>
+(YouTube RSS, Instagram, Manual)       (Roman Urdu & Multi-lingual Handling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v<br>
+[ AI-Assisted Recommendation Agent ] &lt;-- [ Analytical & Sentiment Engine ]<br>
+(Guardrails, Prompts, Tools)             (Engagement Ratios & Metrics)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v<br>
+[ Web Dashboard & Interactive Chatbot UI ]
+</div>
+
+<ul>
+    <li><strong>Data Ingestion Layer (<code>collect.py</code>, <code>collect_instagram.py</code>, <code>merge_manual.py</code>):</strong> Automated, rate-limit-conscious collectors for channel activity, RSS feeds, and social metrics. Includes a structured manual-ingestion pipeline (<code>data/manual/</code>) to seamlessly integrate offline campaign records, brand metrics, and ongoing daily logs without code refactoring.</li>
+    <li><strong>Preprocessing & Normalization Layer (<code>common.py</code>):</strong> Standardized data schema (<code>DATA_DICTIONARY.md</code>) ensuring uniform timestamps, interaction rates, and identifier schemas across disparate social APIs, with text sanitization preserving Roman Urdu colloquial tokens.</li>
+    <li><strong>Analytics & Sentiment Engine (<code>chatbot/engine.py</code>):</strong> Adapts established sentiment techniques from benchmark research (<em>mrudukp/social-media-sentiment-analysis</em>) and enriches them with localized engagement formulas:
+    <br><code>Engagement Rate = ((Comments + Shares + Likes) / Total Views) &times; 100</code></li>
+    <li><strong>AI Agent & Recommendation Engine (<code>agent/</code>):</strong> Tool-augmented AI agent (<code>agent.py</code>, <code>tools.py</code>) equipped with strict guardrails (<code>guard.py</code>) to prevent marketing hallucinations and generate structured, ready-to-publish creative briefs for brand managers.</li>
+    <li><strong>Interactive Visual Dashboard (<code>chatbot/server.py</code>, <code>chatbot/static/</code>):</strong> Web-based interface enabling non-technical stakeholders to query campaign performance, inspect trends, and receive conversational strategy recommendations.</li>
+</ul>
+
+<h2>4. Key Performance Indicators (KPIs)</h2>
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%;">Metric</th>
+            <th style="width: 30%;">Business Objective</th>
+            <th style="width: 45%;">Measurement Focus</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Amplification Rate</strong></td>
+            <td>Gauge viral spread</td>
+            <td>Shares / Reposts per thousand impressions</td>
+        </tr>
+        <tr>
+            <td><strong>Conversation Depth</strong></td>
+            <td>Measure brand connection</td>
+            <td>Comment volume and sentiment distribution</td>
+        </tr>
+        <tr>
+            <td><strong>Engagement Efficiency</strong></td>
+            <td>Compare platforms equitably</td>
+            <td>Total interactions normalized against follower count</td>
+        </tr>
+        <tr>
+            <td><strong>Sentiment Index</strong></td>
+            <td>Assess audience perception</td>
+            <td>Weighted ratio of positive/constructive vs. negative feedback</td>
+        </tr>
+        <tr>
+            <td><strong>Recommendation Precision</strong></td>
+            <td>Evaluate AI utility</td>
+            <td>Quality score and relevance of AI-generated creative briefs</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>5. Continuous Improvement & Evolutionary Roadmap</h2>
+<p>This submission establishes the core architectural foundation for Project 1. In alignment with an iterative data-science lifecycle, the framework is intentionally designed to scale and refine over time:</p>
+<ol>
+    <li><strong>Dynamic Dataset Expansion:</strong> The system continuously ingests fresh platform feeds and manual community logs day by day, expanding cross-industry coverage across Pakistan.</li>
+    <li><strong>Specialized Roman Urdu NLP:</strong> Refining tokenizer weights and sentiment lexicons to improve classification accuracy for localized colloquial slang and code-mixed phrases.</li>
+    <li><strong>Predictive Virality Modeling:</strong> Progressing from descriptive analytics into machine-learning classifiers that forecast engagement probability prior to campaign publishing.</li>
+    <li><strong>Automated Creative Briefs:</strong> Generating multimodal post drafts (copywriting, visual themes, and scheduling tags) tailored for Pakistani agency workflows.</li>
+</ol>
+
+</div>
+</body>
+</html>
