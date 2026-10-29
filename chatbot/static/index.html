@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Content Detective</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b3a8f'/%3E%3Ccircle cx='14' cy='14' r='6' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M19 19l6 6' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="head">
+  <div class="wrap head-in">
+    <div class="mark">
+      <h1>Content Detective</h1>
+      <p>What gets Pakistani audiences to engage? Fashion brands on social media.</p>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview" data-view="overview">Overview</a>
+      <a href="#ask" data-view="ask">Ask a question</a>
+      <a href="#add" data-view="add">Add data</a>
+    </nav>
+  </div>
+</header>
+
+<div class="filterbar">
+  <div class="wrap filters">
+    <div class="seg" role="group" aria-label="Which data to look at">
+      <button type="button" data-source="real" aria-pressed="true">My data</button>
+      <button type="button" data-source="demo" aria-pressed="false">Demo data</button>
+    </div>
+    <label class="f">Platform <select id="f-platform"><option value="">All platforms</option></select></label>
+    <label class="f">Brand <select id="f-brand"><option value="">All brands</option></select></label>
+  </div>
+</div>
+
+<div id="banner" class="banner" role="status" hidden></div>
+
+<main id="main" class="wrap">
+
+  <section id="view-overview" class="view" aria-labelledby="h-overview">
+    <h2 id="h-overview" class="sr" tabindex="-1">Overview</h2>
+    <div id="kpis" class="kpis"></div>
+
+    <div class="sec-head">
+      <h2>Your data, platform by platform</h2>
+      <p>Each card shows what is loaded. Click one to look at that platform only.</p>
+    </div>
+    <div id="plats" class="plats"></div>
+
+    <details class="guide">
+      <summary>How to read this page</summary>
+      <dl>
+        <dt>Typical post (median)</dt><dd>The middle post when all posts are lined up from worst to best. Half did better, half did worse. It is not thrown off by one viral post, which is why we use it instead of the average.</dd>
+        <dt>n = 30</dt><dd>The number of posts behind a bar. Bars with fewer than 5 posts are striped red because a few posts can swing them a lot.</dd>
+        <dt>Engagement per 100 followers</dt><dd>Likes plus comments (plus shares), divided by followers, times 100. It lets a small brand and a big brand be compared fairly. If likes or followers are missing, the page says which measure it used instead.</dd>
+        <dt>“Could easily be chance”</dt><dd>We shuffle the results among posts of the same brand and platform to see how often luck alone makes a gap this big. A small p means luck is unlikely. A gap that could be chance is a hint to test, not a finding.</dd>
+        <dt>Red marker</dt><dd>A caution worth reading before you trust the card.</dd>
+      </dl>
+    </details>
+
+    <div id="cards" class="cards" aria-live="polite"></div>
+  </section>
+
+  <section id="view-ask" class="view narrow" aria-labelledby="h-ask" hidden>
+    <h2 id="h-ask" class="sr" tabindex="-1">Ask a question</h2>
+    <div id="log" role="log" aria-live="polite" aria-label="Conversation">
+      <section class="start" id="start">
+        <h2>Ask anything about the posts</h2>
+        <p>Answers are calculated from the data, not guessed. Each one shows how many posts it rests on, so you can judge how far to trust it.</p>
+        <div class="starters" id="starters"></div>
+      </section>
+    </div>
+    <form id="composer" class="composer" autocomplete="off">
+      <div class="scope" id="scope"></div>
+      <div class="row">
+        <label class="sr" for="q">Your question</label>
+        <input id="q" name="q" type="text" maxlength="300" placeholder="For example: which format works best on Instagram?" enterkeyhint="send">
+        <button id="send" class="primary" type="submit">Ask</button>
+        <button id="clear" class="ghost" type="button">New chat</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="view-add" class="view" aria-labelledby="h-add" hidden>
+    <h2 id="h-add" class="sec-title" tabindex="-1">Add Instagram, Facebook and TikTok posts</h2>
+    <p class="sub">There is no official way to download another brand's posts from these platforms, so you copy the numbers you can see on the brand's public page. Type posts one at a time, or import a spreadsheet of many.</p>
+    <div id="add-lock" class="lock" hidden>Demo data is read-only. Switch to “My data” at the top to add posts.</div>
+
+    <div class="add-grid">
+      <div class="panel">
+        <h3>Add one post</h3>
+        <form id="add-form" novalidate>
+          <div class="grid2">
+            <label class="fld">Your name <input name="collector" type="text" maxlength="60" required autocomplete="name"></label>
+            <label class="fld">Day you read these numbers <input name="collected_on" type="date" required></label>
+          </div>
+          <div class="grid2">
+            <label class="fld">Platform <select name="platform" required></select></label>
+            <label class="fld">Brand <select name="brand" required></select></label>
+          </div>
+          <label class="fld">Link to the post <input name="post_url" type="url" placeholder="https://www.instagram.com/p/…" required>
+            <span class="hint" id="h-url"></span></label>
+          <div class="grid3">
+            <label class="fld">Post date <input name="post_date" type="date" required></label>
+            <label class="fld">Time <span class="opt">optional</span> <input name="post_time_pkt" type="time"><span class="hint">Pakistan time</span></label>
+            <label class="fld">Type of post <select name="media_type" required></select></label>
+          </div>
+          <label class="fld">Caption <span class="opt">optional</span> <textarea name="caption" rows="3" maxlength="2000"></textarea></label>
+          <div class="nums">
+            <label class="fld">Likes <span id="l-likes" class="opt"></span> <input name="likes" type="text" inputmode="text" placeholder="1,234 or 1.2K"></label>
+            <label class="fld">Comments <input name="comments" type="text" inputmode="text" placeholder="56"></label>
+            <label class="fld">Shares <input name="shares" type="text" inputmode="text" placeholder="12"></label>
+            <label class="fld">Views <span id="l-views" class="opt"></span> <input name="views" type="text" inputmode="text" placeholder="15.4K"></label>
+            <label class="fld">Followers of the page <input name="followers_on_page" type="text" inputmode="text" placeholder="1.2M"></label>
+          </div>
+          <p class="hint">Copy numbers exactly as shown. If the page hides a number, leave it empty. Empty means “not shown”, zero means “shows 0”.</p>
+          <div class="actions"><button class="primary" type="submit" id="add-save">Save post</button></div>
+        </form>
+        <div id="add-result" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Import many posts</h3>
+        <p class="sub">Fill in the blank template in Excel or Google Sheets, then import it here. In Excel use <strong>Save As, CSV UTF-8</strong> so Urdu text is kept.</p>
+        <p><a class="dl" href="/template.csv" download>Download the blank template</a></p>
+        <label class="fld">Your filled-in file <input id="file" type="file" accept=".csv,text/csv"></label>
+        <div class="actions"><button class="primary" type="button" id="import-btn">Import file</button></div>
+        <div id="import-result" aria-live="polite"></div>
+
+        <h3 class="rules-h">Rules that keep the numbers comparable</h3>
+        <ul class="rules">
+          <li>Look at <strong>public brand pages</strong> only. Do not use scrapers, bots or fake accounts: they break the platforms' rules.</li>
+          <li>Take the <strong>30 newest posts that are at least 7 days old</strong>, so new posts do not look weak. Skip pinned posts.</li>
+          <li>Facebook: “likes” means the <strong>total reactions</strong> number. TikTok: use the plays number for views.</li>
+          <li>Do not copy usernames or comment text. We only count comments.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="/app.js" defer></script>
+</body>
+</html>

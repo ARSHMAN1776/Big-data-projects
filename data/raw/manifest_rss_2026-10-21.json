@@ -1,0 +1,88 @@
+{
+  "collected_at_utc": "2026-10-21T17:58:10Z",
+  "mode": "rss",
+  "complete": true,
+  "source": "YouTube public channel RSS feeds",
+  "args": {
+    "max_videos": 300,
+    "comments_per_video": 100,
+    "brands": [
+      "Gul Ahmed",
+      "Junaid Jamshed",
+      "Maria B",
+      "Nishat Linen",
+      "Sana Safinaz",
+      "Khaadi",
+      "Outfitters",
+      "Zellbury"
+    ]
+  },
+  "rows": {
+    "videos": 120,
+    "channels": 0,
+    "comments": 0
+  },
+  "api_quota_units_used": null,
+  "files": {
+    "videos": "videos_rss_2026-10-21.csv"
+  },
+  "per_brand": [
+    {
+      "brand": "Gul Ahmed",
+      "videos": 15,
+      "first": "2026-08-31",
+      "last": "2026-10-16",
+      "median_views": 31939.0
+    },
+    {
+      "brand": "Junaid Jamshed",
+      "videos": 15,
+      "first": "2023-04-03",
+      "last": "2026-02-18",
+      "median_views": 3549.0
+    },
+    {
+      "brand": "Khaadi",
+      "videos": 15,
+      "first": "2026-08-27",
+      "last": "2026-10-19",
+      "median_views": 246.0
+    },
+    {
+      "brand": "Maria B",
+      "videos": 15,
+      "first": "2026-10-10",
+      "last": "2026-10-17",
+      "median_views": 1488.0
+    },
+    {
+      "brand": "Nishat Linen",
+      "videos": 15,
+      "first": "2026-10-05",
+      "last": "2026-10-21",
+      "median_views": 1003.0
+    },
+    {
+      "brand": "Outfitters",
+      "videos": 15,
+      "first": "2026-10-19",
+      "last": "2026-10-21",
+      "median_views": 10.0
+    },
+    {
+      "brand": "Sana Safinaz",
+      "videos": 15,
+      "first": "2025-02-12",
+      "last": "2026-04-10",
+      "median_views": 100943.0
+    },
+    {
+      "brand": "Zellbury",
+      "videos": 15,
+      "first": "2025-07-10",
+      "last": "2026-10-19",
+      "median_views": 1061.0
+    }
+  ],
+  "notes": "RSS mode returns only the newest ~15 videos per channel, with views only (likes, comment counts, duration and tags are blank). Blank means not collected, not zero."
+}

@@ -1,0 +1,20 @@
+{
+  "_note": "Channel IDs were resolved from each brand's public YouTube handle page on 2026-10-21. Subscriber counts are approximate, read from the page. Re-check that each channel is the brand's official one before publishing results.",
+  "industry": "Pakistani fashion and lawn clothing",
+  "brands": [
+    { "brand": "Gul Ahmed",      "handle": "@gulahmedofficial",      "channel_id": "UCsAIxl3qvpy1DofpwDEx6Ow", "approx_subscribers": "1.48M" },
+    { "brand": "Junaid Jamshed", "handle": "@junaidjamshedofficial", "channel_id": "UCNA2F7_fAFF3ypRqybx25bg", "approx_subscribers": "162K" },
+    { "brand": "Maria B",        "handle": "@mariabofficial",        "channel_id": "UCJmdNAyevIdbLN2rJPTUEqw", "approx_subscribers": "71.4K" },
+    { "brand": "Nishat Linen",   "handle": "@nishatlinenofficial",   "channel_id": "UCVQd-OGmpDTnXGfVR8eRrGQ", "approx_subscribers": "62.5K" },
+    { "brand": "Sana Safinaz",   "handle": "@sanasafinazofficial",   "channel_id": "UC7gd_nNZvz4DK-ZrZ4FUoAw", "approx_subscribers": "54.4K" },
+    { "brand": "Khaadi",         "handle": "@khaadi",                "channel_id": "UCosHRi7jeBb0JGZfFlOHYUA", "approx_subscribers": "47.3K" },
+    { "brand": "Outfitters",     "handle": "@outfittersofficial",    "channel_id": "UCP1DcFxwdd_Amyqz3N9lQlQ", "approx_subscribers": "6.19K" },
+    { "brand": "Zellbury",       "handle": "@zellbury",              "channel_id": "UCMB8ljKXt96KNOAwCJQNXoQ", "approx_subscribers": "4.75K" }
+  ],
+  "excluded": [
+    { "brand": "Sapphire", "handle": "@sapphirepk", "reason": "feed returned no uploads" },
+    { "brand": "Limelight", "handle": "@limelight", "reason": "only one video, uploaded in 2006" },
+    { "brand": "Agha Noor", "handle": "@agha-noor", "reason": "feed returned no uploads" },
+    { "brand": "Asim Jofa", "handle": "@AsimJofa", "reason": "886 subscribers, too small to be representative" }
+  ]
+}

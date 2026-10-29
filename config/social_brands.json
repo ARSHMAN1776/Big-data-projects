@@ -1,0 +1,16 @@
+{
+  "_note": "Instagram usernames are best guesses and are NOT verified. Run `python collect_instagram.py --check` once: it asks the official API about each username and reports which ones are wrong. Fix them here. Facebook has no username check because Facebook posts are entered by hand.",
+  "industry": "Pakistani fashion and lawn clothing",
+  "brands": [
+    { "brand": "Khaadi",         "instagram": "khaadi" },
+    { "brand": "Sapphire",       "instagram": "sapphirepk" },
+    { "brand": "Gul Ahmed",      "instagram": "gulahmedofficial" },
+    { "brand": "Maria B",        "instagram": "mariabofficial" },
+    { "brand": "Nishat Linen",   "instagram": "nishatlinen" },
+    { "brand": "Sana Safinaz",   "instagram": "sanasafinaz" },
+    { "brand": "Junaid Jamshed", "instagram": "j.junaidjamshed" },
+    { "brand": "Alkaram Studio", "instagram": "alkaramstudio" },
+    { "brand": "Outfitters",     "instagram": "outfitters" },
+    { "brand": "Zellbury",       "instagram": "zellbury" }
+  ]
+}
