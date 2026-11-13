@@ -2,7 +2,7 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const VIEWS = ["overview", "ask", "add"];
+  const VIEWS = ["overview", "graphs", "research", "ask", "add"];
   const state = { source: "real", platform: "", brand: "", view: "overview", info: null, meta: null, token: 0 };
   const asked = [];
   let pending = false;
@@ -507,6 +507,8 @@
     });
     if (v === "overview") loadOverview();
     if (v === "ask") updateScope();
+    if (v === "graphs") { if (window._loadGraphs) window._loadGraphs(); }
+    if (v === "research") { if (window._loadResearch) window._loadResearch(); }
     if (focus) {
       window.scrollTo(0, 0);
       const h = $("h-" + v);
@@ -543,4 +545,299 @@
     showView(currentView(), false);
   }
   init();
+})();
+
+// ===================== GRAPHS & RESEARCH (outside main IIFE) =====================
+(() => {
+  "use strict";
+
+  // Brand colour map
+  const BRAND_COLORS = {
+    "Khaadi":      "#2B6A4D",
+    "Sapphire":    "#1B3A6B",
+    "Gul Ahmed":   "#8B1A1A",
+    "Maria B":     "#6B2D8B",
+    "Sana Safinaz":"#1A5276",
+  };
+  const DEFAULT_COLOR = "#2b3a8f";
+  const PLATFORM_COLORS = {
+    youtube: "#FF0000", instagram: "#E1306C", facebook: "#1877F2", tiktok: "#000000"
+  };
+
+  let chartInstances = {};
+  let graphFilters = { brand: "", platform: "" };
+
+  // ---- helpers
+  function destroyChart(id) {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+  }
+
+  function showChartEmpty(id, show) {
+    const wrap = document.querySelector(`#chart-${id}`).closest(".chart-wrap");
+    const empty = document.getElementById(`chart-${id}-empty`);
+    if (wrap) wrap.style.display = show ? "none" : "";
+    if (empty) empty.hidden = !show;
+  }
+
+  function chartDefaults() {
+    return {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { family: "'Bricolage Grotesque', sans-serif", size: 12 } } } },
+      scales: {
+        x: { ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" } },
+        y: { ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" }, beginAtZero: true }
+      }
+    };
+  }
+
+  // ---- render chart-engagement (horizontal bar)
+  function renderEngagement(data) {
+    const id = "engagement";
+    destroyChart(id);
+    if (!data || !data.labels || !data.labels.length) { showChartEmpty(id, true); return; }
+    showChartEmpty(id, false);
+    const colors = data.labels.map(l => BRAND_COLORS[l] || DEFAULT_COLOR);
+    const ctx = document.getElementById("chart-engagement");
+    chartInstances[id] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: data.datasets[0]?.label || "Median Views",
+          data: data.datasets[0]?.data || [],
+          backgroundColor: colors.map(c => c + "cc"),
+          borderColor: colors,
+          borderWidth: 2, borderRadius: 6,
+        }]
+      },
+      options: {
+        ...chartDefaults(), indexAxis: "y",
+        plugins: { ...chartDefaults().plugins, legend: { display: false } },
+        scales: {
+          x: { ...chartDefaults().scales.x, beginAtZero: true },
+          y: { ticks: { font: { family: "'Bricolage Grotesque', sans-serif", size: 12 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // ---- render chart-formats (grouped bar)
+  function renderFormats(data) {
+    const id = "formats";
+    destroyChart(id);
+    if (!data || !data.labels || !data.labels.length) { showChartEmpty(id, true); return; }
+    showChartEmpty(id, false);
+    const palette = ["#2b3a8f","#2B6A4D","#8B1A1A","#6B2D8B","#1A5276","#b87333","#4a7c59"];
+    const ctx = document.getElementById("chart-formats");
+    chartInstances[id] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: (data.datasets || []).map((ds, i) => ({
+          label: ds.label,
+          data: ds.data,
+          backgroundColor: (palette[i] || DEFAULT_COLOR) + "cc",
+          borderColor: palette[i] || DEFAULT_COLOR,
+          borderWidth: 2, borderRadius: 5,
+        }))
+      },
+      options: {
+        ...chartDefaults(),
+        plugins: { ...chartDefaults().plugins },
+        scales: { ...chartDefaults().scales }
+      }
+    });
+  }
+
+  // ---- render chart-platforms (bar)
+  function renderPlatforms(data) {
+    const id = "platforms";
+    destroyChart(id);
+    if (!data || !data.labels || !data.labels.length) { showChartEmpty(id, true); return; }
+    showChartEmpty(id, false);
+    const colors = data.labels.map(l => PLATFORM_COLORS[l.toLowerCase()] || DEFAULT_COLOR);
+    const ctx = document.getElementById("chart-platforms");
+    chartInstances[id] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: data.datasets[0]?.label || "Median Engagement",
+          data: data.datasets[0]?.data || [],
+          backgroundColor: colors.map(c => c + "cc"),
+          borderColor: colors,
+          borderWidth: 2, borderRadius: 6,
+        }]
+      },
+      options: {
+        ...chartDefaults(),
+        plugins: { ...chartDefaults().plugins, legend: { display: false } },
+      }
+    });
+  }
+
+  // ---- render chart-timing (bar by weekday)
+  function renderTiming(data) {
+    const id = "timing";
+    destroyChart(id);
+    if (!data || !data.labels || !data.labels.length) { showChartEmpty(id, true); return; }
+    showChartEmpty(id, false);
+    const vals = data.datasets[0]?.data || [];
+    const max = Math.max(...vals);
+    const ctx = document.getElementById("chart-timing");
+    chartInstances[id] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: data.datasets[0]?.label || "Median Engagement",
+          data: vals,
+          backgroundColor: vals.map(v => v === max ? "#2b3a8fcc" : "#aeb8e0cc"),
+          borderColor:     vals.map(v => v === max ? "#2b3a8f" : "#aeb8e0"),
+          borderWidth: 2, borderRadius: 6,
+        }]
+      },
+      options: {
+        ...chartDefaults(),
+        plugins: { ...chartDefaults().plugins, legend: { display: false } },
+      }
+    });
+  }
+
+  // ---- load all graph data
+  async function loadGraphs() {
+    const qs = () => {
+      const p = new URLSearchParams();
+      if (graphFilters.brand) p.set("brand", graphFilters.brand);
+      if (graphFilters.platform) p.set("platform", graphFilters.platform);
+      return p.toString() ? "?" + p : "";
+    };
+    try {
+      const [eng, fmt, plat, timing] = await Promise.all([
+        fetch("/api/graphs/engagement" + qs()).then(r => r.json()),
+        fetch("/api/graphs/formats" + qs()).then(r => r.json()),
+        fetch("/api/graphs/platforms" + (graphFilters.brand ? "?brand=" + graphFilters.brand : "")).then(r => r.json()),
+        fetch("/api/graphs/timing" + qs()).then(r => r.json()),
+      ]);
+      renderEngagement(eng);
+      renderFormats(fmt);
+      renderPlatforms(plat);
+      renderTiming(timing);
+    } catch (e) {
+      console.error("Graph load error:", e);
+    }
+  }
+
+  // ---- load research page
+  async function loadResearch() {
+    try {
+      const [dash, eng, fmt, timing] = await Promise.all([
+        fetch("/api/dashboard").then(r => r.json()),
+        fetch("/api/graphs/engagement").then(r => r.json()),
+        fetch("/api/graphs/formats").then(r => r.json()),
+        fetch("/api/graphs/timing").then(r => r.json()),
+      ]);
+
+      // Top brand
+      if (eng && eng.labels && eng.labels.length) {
+        const vals = eng.datasets[0]?.data || [];
+        const topIdx = vals.indexOf(Math.max(...vals));
+        const topBrand = eng.labels[topIdx] || "—";
+        const topVal = vals[topIdx];
+        document.getElementById("ri-top-brand").textContent = topBrand;
+        document.getElementById("ri-top-brand-stat").textContent =
+          topVal ? `Median ${(eng.meta?.metric || "views")}: ${topVal.toLocaleString()}` : "—";
+      }
+
+      // Top format
+      if (fmt && fmt.labels && fmt.labels.length) {
+        const vals = fmt.datasets[0]?.data || [];
+        const topIdx = vals.indexOf(Math.max(...vals));
+        document.getElementById("ri-top-format").textContent = fmt.labels[topIdx] || "—";
+        document.getElementById("ri-top-format-stat").textContent =
+          `Median: ${(vals[topIdx] || 0).toLocaleString()} ${fmt.meta?.metric || "views"}`;
+      }
+
+      // Best day
+      if (timing && timing.labels && timing.labels.length) {
+        const vals = timing.datasets[0]?.data || [];
+        const topIdx = vals.indexOf(Math.max(...vals));
+        document.getElementById("ri-top-day").textContent = timing.labels[topIdx] || "—";
+      }
+
+      // Key findings from dashboard sections
+      const findings = document.getElementById("research-findings");
+      findings.replaceChildren();
+      if (dash && dash.sections && dash.sections.length) {
+        dash.sections.slice(0, 6).forEach(sec => {
+          if (sec.answer && sec.answer.text) {
+            const li = document.createElement("li");
+            li.className = "research-finding";
+            li.textContent = `${sec.title}: ${sec.answer.text}`;
+            findings.appendChild(li);
+          }
+        });
+      }
+      if (!findings.children.length) {
+        const li = document.createElement("li");
+        li.className = "research-finding loading";
+        li.textContent = "Add more posts to generate findings.";
+        findings.appendChild(li);
+      }
+
+      // Brand table
+      if (dash && dash.platform_status) {
+        const tbody = document.getElementById("brand-table-body");
+        tbody.replaceChildren();
+        const brandMap = {};
+        (dash.sections || []).forEach(sec => {
+          if (sec.id === "brands" && sec.answer && sec.answer.blocks) {
+            sec.answer.blocks.forEach(block => {
+              if (block.type === "bars") {
+                block.items.forEach(item => {
+                  brandMap[item.label] = { n: item.n, value: item.display };
+                });
+              }
+            });
+          }
+        });
+        const brands = ["Khaadi","Sapphire","Gul Ahmed","Maria B","Sana Safinaz"];
+        brands.forEach(brand => {
+          const info = brandMap[brand] || {};
+          const tr = document.createElement("tr");
+          const dot = `<span class="brand-dot" style="background:${BRAND_COLORS[brand] || DEFAULT_COLOR}"></span>`;
+          tr.innerHTML = `<td>${dot}${brand}</td><td class="r">${info.n || "—"}</td><td class="r">${info.value || "—"}</td><td class="r">Instagram · TikTok</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch (e) {
+      console.error("Research load error:", e);
+    }
+  }
+
+  // ---- graph filter pill wiring (fires after DOM ready)
+  document.addEventListener("DOMContentLoaded", () => {
+    // Brand pills
+    document.querySelectorAll("[data-gbrand]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-gbrand]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        graphFilters.brand = btn.dataset.gbrand;
+        loadGraphs();
+      });
+    });
+    // Platform pills
+    document.querySelectorAll("[data-gplat]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-gplat]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        graphFilters.platform = btn.dataset.gplat;
+        loadGraphs();
+      });
+    });
+  });
+
+  // expose for tab switcher
+  window._loadGraphs = loadGraphs;
+  window._loadResearch = loadResearch;
 })();

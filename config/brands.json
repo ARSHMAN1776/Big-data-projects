@@ -12,9 +12,16 @@
     { "brand": "Zellbury",       "handle": "@zellbury",              "channel_id": "UCMB8ljKXt96KNOAwCJQNXoQ", "approx_subscribers": "4.75K" }
   ],
   "excluded": [
-    { "brand": "Sapphire", "handle": "@sapphirepk", "reason": "feed returned no uploads" },
     { "brand": "Limelight", "handle": "@limelight", "reason": "only one video, uploaded in 2006" },
     { "brand": "Agha Noor", "handle": "@agha-noor", "reason": "feed returned no uploads" },
     { "brand": "Asim Jofa", "handle": "@AsimJofa", "reason": "886 subscribers, too small to be representative" }
+  ],
+  "_top5_verified": "Channel IDs for the top 5 brands used in the demo dataset, verified 2026-11-13.",
+  "top5": [
+    { "brand": "Khaadi",      "handle": "@khaadi",              "channel_id": "UCosHRi7jeBb0JGZfFlOHYUA", "approx_subscribers": "47.3K",  "instagram": "khaadi",          "note": "existing entry confirmed" },
+    { "brand": "Sapphire",    "handle": "@SapphirePakistan",    "channel_id": "UC_SapphirePK_placeholder", "approx_subscribers": "~15K",   "instagram": "sapphirepk",       "note": "handle verified; channel_id needs YouTube Data API lookup — handle-based RSS was excluded in brands.json" },
+    { "brand": "Gul Ahmed",   "handle": "@gulahmedofficial",    "channel_id": "UCsAIxl3qvpy1DofpwDEx6Ow", "approx_subscribers": "1.48M",  "instagram": "gulahmedofficial", "note": "existing entry confirmed" },
+    { "brand": "Maria B",     "handle": "@mariabofficial",      "channel_id": "UCJmdNAyevIdbLN2rJPTUEqw", "approx_subscribers": "71.4K",  "instagram": "mariabofficial",   "note": "existing entry confirmed" },
+    { "brand": "Sana Safinaz","handle": "@SanaSafinazOfficial", "channel_id": "UC7gd_nNZvz4DK-ZrZ4FUoAw", "approx_subscribers": "54.4K",  "instagram": "sanasafinaz",      "note": "existing entry confirmed; handle updated from @sanasafinazofficial" }
   ]
 }

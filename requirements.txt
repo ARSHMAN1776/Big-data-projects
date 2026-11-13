@@ -1,2 +1,8 @@
 pandas>=2.0
 requests>=2.31
+fastapi
+uvicorn[standard]
+sqlalchemy
+aiosqlite
+python-multipart
+google-generativeai

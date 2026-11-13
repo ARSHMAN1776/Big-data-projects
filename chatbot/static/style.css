@@ -232,6 +232,105 @@ p.hint { margin: 0 0 12px; font-size: 13.5px; }
 .rules strong { color: var(--ink); }
 .lock { margin-top: 14px; padding: 12px 14px; background: var(--madder-soft); border: 1px solid var(--madder); border-radius: 12px; }
 
+/* ===================== GRAPHS TAB ===================== */
+.graphs-header { margin: 20px 0 16px; }
+
+.brand-pills, .plat-pills {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+}
+.pill-btn {
+  font: 600 13px var(--sans); padding: 7px 16px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink-2);
+  cursor: pointer; transition: all .15s;
+}
+.pill-btn:hover { border-color: var(--indigo); color: var(--indigo); }
+.pill-btn.active { background: var(--indigo); color: #fff; border-color: var(--indigo); }
+@media (prefers-color-scheme: dark) { .pill-btn.active { color: #0d1132; } }
+
+/* brand colours on pills */
+.pill-btn.khaadi.active    { background: #2B6A4D; border-color: #2B6A4D; }
+.pill-btn.sapphire.active  { background: #1B3A6B; border-color: #1B3A6B; }
+.pill-btn.gulahmed.active  { background: #8B1A1A; border-color: #8B1A1A; }
+.pill-btn.mariab.active    { background: #6B2D8B; border-color: #6B2D8B; }
+.pill-btn.sanasafinaz.active{ background: #1A5276; border-color: #1A5276; }
+
+.charts-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 8px;
+}
+@media (max-width: 860px) { .charts-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.chart-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 20px; display: flex; flex-direction: column; gap: 12px;
+}
+.chart-card-head h3 { margin: 0; font-size: 17px; }
+.chart-card-head p  { margin: 4px 0 0; color: var(--ink-2); font-size: 13.5px; }
+.chart-wrap { position: relative; height: 240px; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.chart-empty {
+  padding: 40px 20px; text-align: center; color: var(--ink-2); font-size: 14px;
+  border: 1.5px dashed var(--line); border-radius: 12px;
+}
+
+/* ===================== RESEARCH TAB ===================== */
+.insight-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-bottom: 20px;
+}
+@media (max-width: 720px) { .insight-grid { grid-template-columns: 1fr; } }
+
+.insight-card {
+  border-radius: 16px; padding: 22px 20px; color: #fff; display: flex;
+  flex-direction: column; gap: 6px;
+}
+.insight-brand    { background: linear-gradient(135deg, #2b3a8f 0%, #4a5dd4 100%); }
+.insight-format   { background: linear-gradient(135deg, #2B6A4D 0%, #3da870 100%); }
+.insight-day      { background: linear-gradient(135deg, #6B2D8B 0%, #9b4dca 100%); }
+.insight-icon  { font-size: 28px; }
+.insight-label { font-size: 12px; font-weight: 600; opacity: .8; text-transform: uppercase; letter-spacing: .06em; }
+.insight-value { font: 700 24px/1.1 var(--sans); }
+.insight-sub   { font-size: 13px; opacity: .85; }
+
+.research-grid {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px;
+}
+@media (max-width: 860px) { .research-grid { grid-template-columns: minmax(0,1fr); } }
+
+.research-panel {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+}
+.research-panel h3 { margin: 0 0 14px; font-size: 18px; }
+.research-findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.research-finding {
+  padding: 10px 12px 10px 36px; position: relative; background: var(--paper);
+  border-radius: 10px; font-size: 14.5px; line-height: 1.4;
+}
+.research-finding::before {
+  content: "→"; position: absolute; left: 12px; top: 10px;
+  color: var(--indigo); font-weight: 700;
+}
+.research-finding.loading { color: var(--ink-2); background: transparent; }
+
+.rec-list { display: grid; gap: 12px; }
+.rec-card {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 14px; background: var(--paper); border-radius: 12px;
+}
+.rec-num {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--indigo); color: #fff; font: 700 13px var(--sans);
+  display: flex; align-items: center; justify-content: center;
+}
+@media (prefers-color-scheme: dark) { .rec-num { color: #0d1132; } }
+.rec-card strong { font-size: 15px; display: block; margin-bottom: 2px; }
+.rec-card p { margin: 0; color: var(--ink-2); font-size: 13.5px; line-height: 1.4; }
+
+.brand-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--line); }
+.brand-table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+.brand-table th { font: 600 12.5px var(--sans); color: var(--ink-2); padding: 8px 12px; background: var(--paper); border-bottom: 1px solid var(--line); }
+.brand-table td { padding: 10px 12px; border-top: 1px solid var(--line); }
+.brand-table tr:first-child td { border-top: 0; }
+.brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }

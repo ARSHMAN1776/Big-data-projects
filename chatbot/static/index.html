@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -22,6 +23,8 @@
     </div>
     <nav class="tabs" aria-label="Sections">
       <a href="#overview" data-view="overview">Overview</a>
+      <a href="#graphs" data-view="graphs">Graphs</a>
+      <a href="#research" data-view="research">Research</a>
       <a href="#ask" data-view="ask">Ask a question</a>
       <a href="#add" data-view="add">Add data</a>
     </nav>
@@ -67,6 +70,158 @@
     <div id="cards" class="cards" aria-live="polite"></div>
   </section>
 
+  <!-- ===================== GRAPHS ===================== -->
+  <section id="view-graphs" class="view" aria-labelledby="h-graphs" hidden>
+    <h2 id="h-graphs" class="sr" tabindex="-1">Graphs</h2>
+
+    <div class="graphs-header">
+      <h2 class="sec-title">Brand Performance Charts</h2>
+      <p class="sub">Interactive analytics across all 5 Pakistani fashion brands. Data updates as you add posts.</p>
+    </div>
+
+    <!-- Brand filter pills -->
+    <div class="brand-pills" role="group" aria-label="Filter by brand">
+      <button class="pill-btn active" data-gbrand="">All Brands</button>
+      <button class="pill-btn khaadi" data-gbrand="Khaadi">Khaadi</button>
+      <button class="pill-btn sapphire" data-gbrand="Sapphire">Sapphire</button>
+      <button class="pill-btn gulahmed" data-gbrand="Gul Ahmed">Gul Ahmed</button>
+      <button class="pill-btn mariab" data-gbrand="Maria B">Maria B</button>
+      <button class="pill-btn sanasafinaz" data-gbrand="Sana Safinaz">Sana Safinaz</button>
+    </div>
+
+    <!-- Platform filter pills -->
+    <div class="plat-pills" role="group" aria-label="Filter by platform">
+      <button class="pill-btn active" data-gplat="">All Platforms</button>
+      <button class="pill-btn" data-gplat="youtube">YouTube</button>
+      <button class="pill-btn" data-gplat="instagram">Instagram</button>
+      <button class="pill-btn" data-gplat="facebook">Facebook</button>
+      <button class="pill-btn" data-gplat="tiktok">TikTok</button>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Engagement by Brand</h3>
+          <p>Median views / engagement per post for each brand</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-engagement" aria-label="Engagement by brand chart"></canvas></div>
+        <div id="chart-engagement-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Content Format Performance</h3>
+          <p>Which format (Reel, Photo, Carousel, Video) gets the most reach</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-formats" aria-label="Format performance chart"></canvas></div>
+        <div id="chart-formats-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Platform Comparison</h3>
+          <p>How each social platform performs for Pakistani fashion brands</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-platforms" aria-label="Platform comparison chart"></canvas></div>
+        <div id="chart-platforms-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Best Day to Post</h3>
+          <p>Which weekday gets the highest engagement in Pakistan time</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-timing" aria-label="Best timing chart"></canvas></div>
+        <div id="chart-timing-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESEARCH ===================== -->
+  <section id="view-research" class="view" aria-labelledby="h-research" hidden>
+    <h2 id="h-research" class="sr" tabindex="-1">Research</h2>
+
+    <div class="graphs-header">
+      <h2 class="sec-title">Brand Research Insights</h2>
+      <p class="sub">Evidence-based findings on what drives engagement for Pakistani fashion brands on social media.</p>
+    </div>
+
+    <!-- Top insight cards -->
+    <div class="insight-grid" id="insight-grid">
+      <div class="insight-card insight-brand">
+        <div class="insight-icon">🏆</div>
+        <div class="insight-label">Top Performing Brand</div>
+        <div class="insight-value" id="ri-top-brand">—</div>
+        <div class="insight-sub" id="ri-top-brand-stat">Loading…</div>
+      </div>
+      <div class="insight-card insight-format">
+        <div class="insight-icon">🎬</div>
+        <div class="insight-label">Best Content Format</div>
+        <div class="insight-value" id="ri-top-format">—</div>
+        <div class="insight-sub" id="ri-top-format-stat">Loading…</div>
+      </div>
+      <div class="insight-card insight-day">
+        <div class="insight-icon">📅</div>
+        <div class="insight-label">Best Day to Post</div>
+        <div class="insight-value" id="ri-top-day">—</div>
+        <div class="insight-sub" id="ri-top-day-stat">Pakistan Standard Time</div>
+      </div>
+    </div>
+
+    <div class="research-grid">
+      <div class="research-panel">
+        <h3>Key Findings</h3>
+        <ul class="research-findings" id="research-findings">
+          <li class="research-finding loading">Loading data…</li>
+        </ul>
+      </div>
+
+      <div class="research-panel">
+        <h3>Actionable Recommendations</h3>
+        <div class="rec-list" id="rec-list">
+          <div class="rec-card">
+            <span class="rec-num">1</span>
+            <div>
+              <strong>Post Reels consistently</strong>
+              <p>Short-form video outperforms static images across all Pakistani fashion brands on Instagram and TikTok.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">2</span>
+            <div>
+              <strong>Leverage Eid &amp; seasonal peaks</strong>
+              <p>Engagement spikes during Eid-ul-Fitr, Eid-ul-Adha, and summer lawn season. Plan campaigns 2 weeks ahead.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">3</span>
+            <div>
+              <strong>Post in the evening (7–10 PM PKT)</strong>
+              <p>Pakistani audiences are most active in the evening. Schedule posts between 7 PM and 10 PM for maximum reach.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">4</span>
+            <div>
+              <strong>Use bilingual captions</strong>
+              <p>Mix Urdu/Roman Urdu with English in captions to connect with both urban and regional Pakistani audiences.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-panel" style="margin-top:16px">
+      <h3>Brands at a Glance</h3>
+      <div class="brand-table-wrap">
+        <table class="brand-table" id="brand-table">
+          <thead><tr><th>Brand</th><th class="r">Posts</th><th class="r">Avg Views</th><th class="r">Platform Focus</th></tr></thead>
+          <tbody id="brand-table-body"><tr><td colspan="4" style="text-align:center;color:var(--ink-2)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section id="view-ask" class="view narrow" aria-labelledby="h-ask" hidden>
     <h2 id="h-ask" class="sr" tabindex="-1">Ask a question</h2>
     <div id="log" role="log" aria-live="polite" aria-label="Conversation">
@@ -85,6 +240,158 @@
         <button id="clear" class="ghost" type="button">New chat</button>
       </div>
     </form>
+  </section>
+
+  <!-- ===================== GRAPHS ===================== -->
+  <section id="view-graphs" class="view" aria-labelledby="h-graphs" hidden>
+    <h2 id="h-graphs" class="sr" tabindex="-1">Graphs</h2>
+
+    <div class="graphs-header">
+      <h2 class="sec-title">Brand Performance Charts</h2>
+      <p class="sub">Interactive analytics across all 5 Pakistani fashion brands. Data updates as you add posts.</p>
+    </div>
+
+    <!-- Brand filter pills -->
+    <div class="brand-pills" role="group" aria-label="Filter by brand">
+      <button class="pill-btn active" data-gbrand="">All Brands</button>
+      <button class="pill-btn khaadi" data-gbrand="Khaadi">Khaadi</button>
+      <button class="pill-btn sapphire" data-gbrand="Sapphire">Sapphire</button>
+      <button class="pill-btn gulahmed" data-gbrand="Gul Ahmed">Gul Ahmed</button>
+      <button class="pill-btn mariab" data-gbrand="Maria B">Maria B</button>
+      <button class="pill-btn sanasafinaz" data-gbrand="Sana Safinaz">Sana Safinaz</button>
+    </div>
+
+    <!-- Platform filter pills -->
+    <div class="plat-pills" role="group" aria-label="Filter by platform">
+      <button class="pill-btn active" data-gplat="">All Platforms</button>
+      <button class="pill-btn" data-gplat="youtube">YouTube</button>
+      <button class="pill-btn" data-gplat="instagram">Instagram</button>
+      <button class="pill-btn" data-gplat="facebook">Facebook</button>
+      <button class="pill-btn" data-gplat="tiktok">TikTok</button>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Engagement by Brand</h3>
+          <p>Median views / engagement per post for each brand</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-engagement" aria-label="Engagement by brand chart"></canvas></div>
+        <div id="chart-engagement-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Content Format Performance</h3>
+          <p>Which format (Reel, Photo, Carousel, Video) gets the most reach</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-formats" aria-label="Format performance chart"></canvas></div>
+        <div id="chart-formats-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Platform Comparison</h3>
+          <p>How each social platform performs for Pakistani fashion brands</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-platforms" aria-label="Platform comparison chart"></canvas></div>
+        <div id="chart-platforms-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h3>Best Day to Post</h3>
+          <p>Which weekday gets the highest engagement in Pakistan time</p>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-timing" aria-label="Best timing chart"></canvas></div>
+        <div id="chart-timing-empty" class="chart-empty" hidden>No data available for this filter.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESEARCH ===================== -->
+  <section id="view-research" class="view" aria-labelledby="h-research" hidden>
+    <h2 id="h-research" class="sr" tabindex="-1">Research</h2>
+
+    <div class="graphs-header">
+      <h2 class="sec-title">Brand Research Insights</h2>
+      <p class="sub">Evidence-based findings on what drives engagement for Pakistani fashion brands on social media.</p>
+    </div>
+
+    <!-- Top insight cards -->
+    <div class="insight-grid" id="insight-grid">
+      <div class="insight-card insight-brand">
+        <div class="insight-icon">🏆</div>
+        <div class="insight-label">Top Performing Brand</div>
+        <div class="insight-value" id="ri-top-brand">—</div>
+        <div class="insight-sub" id="ri-top-brand-stat">Loading…</div>
+      </div>
+      <div class="insight-card insight-format">
+        <div class="insight-icon">🎬</div>
+        <div class="insight-label">Best Content Format</div>
+        <div class="insight-value" id="ri-top-format">—</div>
+        <div class="insight-sub" id="ri-top-format-stat">Loading…</div>
+      </div>
+      <div class="insight-card insight-day">
+        <div class="insight-icon">📅</div>
+        <div class="insight-label">Best Day to Post</div>
+        <div class="insight-value" id="ri-top-day">—</div>
+        <div class="insight-sub" id="ri-top-day-stat">Pakistan Standard Time</div>
+      </div>
+    </div>
+
+    <div class="research-grid">
+      <div class="research-panel">
+        <h3>Key Findings</h3>
+        <ul class="research-findings" id="research-findings">
+          <li class="research-finding loading">Loading data…</li>
+        </ul>
+      </div>
+
+      <div class="research-panel">
+        <h3>Actionable Recommendations</h3>
+        <div class="rec-list" id="rec-list">
+          <div class="rec-card">
+            <span class="rec-num">1</span>
+            <div>
+              <strong>Post Reels consistently</strong>
+              <p>Short-form video outperforms static images across all Pakistani fashion brands on Instagram and TikTok.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">2</span>
+            <div>
+              <strong>Leverage Eid &amp; seasonal peaks</strong>
+              <p>Engagement spikes during Eid-ul-Fitr, Eid-ul-Adha, and summer lawn season. Plan campaigns 2 weeks ahead.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">3</span>
+            <div>
+              <strong>Post in the evening (7–10 PM PKT)</strong>
+              <p>Pakistani audiences are most active in the evening. Schedule posts between 7 PM and 10 PM for maximum reach.</p>
+            </div>
+          </div>
+          <div class="rec-card">
+            <span class="rec-num">4</span>
+            <div>
+              <strong>Use bilingual captions</strong>
+              <p>Mix Urdu/Roman Urdu with English in captions to connect with both urban and regional Pakistani audiences.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-panel" style="margin-top:16px">
+      <h3>Brands at a Glance</h3>
+      <div class="brand-table-wrap">
+        <table class="brand-table" id="brand-table">
+          <thead><tr><th>Brand</th><th class="r">Posts</th><th class="r">Avg Views</th><th class="r">Platform Focus</th></tr></thead>
+          <tbody id="brand-table-body"><tr><td colspan="4" style="text-align:center;color:var(--ink-2)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
   <section id="view-add" class="view" aria-labelledby="h-add" hidden>
