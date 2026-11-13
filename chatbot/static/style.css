@@ -49,6 +49,13 @@ h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.005em; }
 .head-in { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .mark h1 { margin: 0; font-size: 30px; line-height: 1.1; letter-spacing: -0.015em; }
 .mark p { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; max-width: 52ch; }
+.gh-link {
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px;
+  border: 1.5px solid var(--line); border-radius: 10px; color: var(--ink-2);
+  text-decoration: none; font: 600 13px var(--sans); transition: all .15s;
+  white-space: nowrap; align-self: flex-start; margin-bottom: 4px;
+}
+.gh-link:hover { border-color: var(--indigo); color: var(--indigo); }
 .tabs { display: flex; gap: 4px; }
 .tabs a {
   padding: 10px 16px; border-radius: 10px 10px 0 0; color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15px;

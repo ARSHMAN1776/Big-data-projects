@@ -731,38 +731,33 @@
   // ---- load research page
   async function loadResearch() {
     try {
-      const [dash, eng, fmt, timing] = await Promise.all([
+      const [summary, dash] = await Promise.all([
+        fetch("/api/summary").then(r => r.json()),
         fetch("/api/dashboard").then(r => r.json()),
-        fetch("/api/graphs/engagement").then(r => r.json()),
-        fetch("/api/graphs/formats").then(r => r.json()),
-        fetch("/api/graphs/timing").then(r => r.json()),
       ]);
 
-      // Top brand
-      if (eng && eng.labels && eng.labels.length) {
-        const vals = eng.datasets[0]?.data || [];
-        const topIdx = vals.indexOf(Math.max(...vals));
-        const topBrand = eng.labels[topIdx] || "—";
-        const topVal = vals[topIdx];
-        document.getElementById("ri-top-brand").textContent = topBrand;
+      // Top brand from summary
+      if (summary.top_brand) {
+        document.getElementById("ri-top-brand").textContent = summary.top_brand;
         document.getElementById("ri-top-brand-stat").textContent =
-          topVal ? `Median ${(eng.meta?.metric || "views")}: ${topVal.toLocaleString()}` : "—";
+          summary.top_brand_val
+            ? `Median ${summary.metric_used}: ${Math.round(summary.top_brand_val).toLocaleString()}`
+            : "Top performer";
       }
 
-      // Top format
-      if (fmt && fmt.labels && fmt.labels.length) {
-        const vals = fmt.datasets[0]?.data || [];
-        const topIdx = vals.indexOf(Math.max(...vals));
-        document.getElementById("ri-top-format").textContent = fmt.labels[topIdx] || "—";
+      // Best format
+      if (summary.best_format) {
+        document.getElementById("ri-top-format").textContent =
+          summary.best_format.charAt(0).toUpperCase() + summary.best_format.slice(1);
         document.getElementById("ri-top-format-stat").textContent =
-          `Median: ${(vals[topIdx] || 0).toLocaleString()} ${fmt.meta?.metric || "views"}`;
+          summary.best_format_val
+            ? `Median: ${Math.round(summary.best_format_val).toLocaleString()} ${summary.metric_used}`
+            : "Best performing format";
       }
 
       // Best day
-      if (timing && timing.labels && timing.labels.length) {
-        const vals = timing.datasets[0]?.data || [];
-        const topIdx = vals.indexOf(Math.max(...vals));
-        document.getElementById("ri-top-day").textContent = timing.labels[topIdx] || "—";
+      if (summary.best_day) {
+        document.getElementById("ri-top-day").textContent = summary.best_day;
       }
 
       // Key findings from dashboard sections
@@ -786,30 +781,28 @@
       }
 
       // Brand table
-      if (dash && dash.platform_status) {
-        const tbody = document.getElementById("brand-table-body");
-        tbody.replaceChildren();
-        const brandMap = {};
-        (dash.sections || []).forEach(sec => {
-          if (sec.id === "brands" && sec.answer && sec.answer.blocks) {
-            sec.answer.blocks.forEach(block => {
-              if (block.type === "bars") {
-                block.items.forEach(item => {
-                  brandMap[item.label] = { n: item.n, value: item.display };
-                });
-              }
-            });
-          }
-        });
-        const brands = ["Khaadi","Sapphire","Gul Ahmed","Maria B","Sana Safinaz"];
-        brands.forEach(brand => {
-          const info = brandMap[brand] || {};
-          const tr = document.createElement("tr");
-          const dot = `<span class="brand-dot" style="background:${BRAND_COLORS[brand] || DEFAULT_COLOR}"></span>`;
-          tr.innerHTML = `<td>${dot}${brand}</td><td class="r">${info.n || "—"}</td><td class="r">${info.value || "—"}</td><td class="r">Instagram · TikTok</td>`;
-          tbody.appendChild(tr);
-        });
-      }
+      const tbody = document.getElementById("brand-table-body");
+      tbody.replaceChildren();
+      const brandMap = {};
+      (dash.sections || []).forEach(sec => {
+        if (sec.id === "brands" && sec.answer && sec.answer.blocks) {
+          sec.answer.blocks.forEach(block => {
+            if (block.type === "bars") {
+              block.items.forEach(item => {
+                brandMap[item.label] = { n: item.n, value: item.display };
+              });
+            }
+          });
+        }
+      });
+      const brands = ["Khaadi","Sapphire","Gul Ahmed","Maria B","Sana Safinaz"];
+      brands.forEach(brand => {
+        const info = brandMap[brand] || {};
+        const tr = document.createElement("tr");
+        const dot = `<span class="brand-dot" style="background:${BRAND_COLORS[brand] || DEFAULT_COLOR}"></span>`;
+        tr.innerHTML = `<td>${dot}${brand}</td><td class="r">${info.n || "—"}</td><td class="r">${info.value || "—"}</td><td class="r">Instagram · TikTok · FB · YT</td>`;
+        tbody.appendChild(tr);
+      });
     } catch (e) {
       console.error("Research load error:", e);
     }
