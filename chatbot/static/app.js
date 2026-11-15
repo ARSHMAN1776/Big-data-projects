@@ -3,8 +3,9 @@
   const $ = (id) => document.getElementById(id);
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const VIEWS = ["overview", "graphs", "research", "ask", "add"];
-  const state = { source: "real", platform: "", brand: "", view: "overview", info: null, meta: null, token: 0 };
+  const state = { platform: "", brand: "", view: "overview", info: null, meta: null, token: 0 };
   const asked = [];
+  const chatHistory = [];
   let pending = false;
 
   // Per-platform wording for the add form.
@@ -20,7 +21,7 @@
   ];
   const plain = (t) => PLAIN.reduce((s, [re, to]) => s.replace(re, to), t);
 
-  // ---------- helpers. Everything that comes from data is added with textContent, never as HTML.
+  // ---------- helpers
   function el(tag, cls, text) {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -37,7 +38,7 @@
     const res = await fetch(path, opts);
     let data = {};
     try { data = await res.json(); } catch { /* not JSON */ }
-    if (!res.ok) throw new Error(data.error || "The server could not do that.");
+    if (!res.ok) throw new Error(data.error || data.detail || "The server could not do that.");
     return data;
   }
   const getJSON = (path, params) => {
@@ -45,8 +46,19 @@
     return call(path + (qs.toString() ? "?" + qs : ""));
   };
   const postJSON = (path, body) => call(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const scope = () => ({ source: state.source, platform: state.platform, brand: state.brand });
+  const scope = () => ({ platform: state.platform, brand: state.brand });
   const platName = (k) => (state.info && state.info.platform_status.find((p) => p.key === k) || {}).name || k;
+
+  // ---------- data badge
+  function updateBadge() {
+    const badge = $("data-badge");
+    const text = $("badge-text");
+    if (!badge || !text) return;
+    if (!state.info) { text.textContent = "Loading…"; return; }
+    const n = state.info.rows || 0;
+    text.textContent = n.toLocaleString() + " " + (n === 1 ? "post" : "posts");
+    badge.classList.toggle("live", n > 0);
+  }
 
   // ---------- shared renderers
   function renderBars(block) {
@@ -123,7 +135,6 @@
   function renderPlats(list) {
     const box = $("plats");
     box.replaceChildren();
-    const canAdd = state.source === "real";
     list.forEach((p) => {
       if (p.rows) {
         const b = el("button", "plat" + (state.platform === p.key ? " on" : ""));
@@ -140,7 +151,7 @@
         d.append(el("div", "n", p.name), el("div", "c", "No data yet"));
         const manual = ["instagram", "facebook", "tiktok"].includes(p.key);
         d.appendChild(el("div", "m", manual ? "Type posts in by hand or import a spreadsheet." : "Collected with the collect.py script."));
-        if (manual && canAdd) {
+        if (manual) {
           const go = el("button", "go", "Add " + p.name + " posts");
           go.type = "button";
           go.addEventListener("click", () => { go_("add"); setAddPlatform(p.key); });
@@ -193,16 +204,13 @@
       box.appendChild(b);
     } else {
       box.append(el("h3", null, "No posts yet"),
-        el("p", null, "Add posts you copy from Instagram, Facebook or TikTok pages, or switch to demo data to see how every screen looks with made-up numbers."));
+        el("p", null, "Add posts you copy from Instagram, Facebook or TikTok pages to get started."));
       const row = el("div", "actions");
       row.style.justifyContent = "center";
       const add = el("button", "primary", "Add data");
       add.type = "button";
       add.addEventListener("click", () => go_("add"));
-      const demo = el("button", "ghost", "Show demo data");
-      demo.type = "button";
-      demo.addEventListener("click", () => setSource("demo"));
-      row.append(add, demo);
+      row.appendChild(add);
       box.appendChild(row);
     }
     return box;
@@ -224,15 +232,24 @@
     } catch (e) {
       if (token !== state.token) return;
       const box = el("div", "empty");
-      box.append(el("h3", null, "Could not load the overview"), el("p", null, e.message + " Check that the terminal running chatbot/server.py is still open."));
+      box.append(el("h3", null, "Could not load the overview"), el("p", null, e.message + " Check that the server is running (python run.py)."));
       cards.replaceChildren(box);
     }
   }
 
-  // ---------- chat
+  // ---------- chat (AI-powered via /api/chat with fallback)
   function renderAnswer(a, failed) {
     const card = el("article", "msg bot" + (failed ? " failed" : ""));
-    card.appendChild(el("p", "lead", a.text));
+
+    // AI badge
+    if (a.used_ai) {
+      const badge = el("span", "ai-badge", "✨ AI-powered");
+      card.appendChild(badge);
+    }
+
+    card.appendChild(el("p", "lead", a.answer || a.text || ""));
+
+    // Rule-based blocks (from /api/ask)
     (a.blocks || []).forEach((b) => card.appendChild(renderBlock(b)));
     const plainNotes = (a.notes || []).filter((n) => n.level !== "method");
     if (plainNotes.length) card.appendChild(notesList(plainNotes));
@@ -243,10 +260,17 @@
       method.forEach((n) => d.appendChild(el("p", null, n.text)));
       card.appendChild(d);
     }
+
     if (a.evidence) card.appendChild(el("div", "tag", a.evidence));
-    if (a.follow_ups && a.follow_ups.length) {
+
+    // Note from AI fallback
+    if (a.note) card.appendChild(el("div", "ai-note muted", a.note));
+
+    // Follow-up suggestions (from both endpoints)
+    const followups = a.suggestions || a.follow_ups || [];
+    if (followups.length) {
       const row = el("div", "followups");
-      a.follow_ups.forEach((q) => {
+      followups.forEach((q) => {
         const b = el("button", "fu", q);
         b.type = "button";
         b.addEventListener("click", () => ask(q));
@@ -265,7 +289,7 @@
     const log = $("log"), input = $("q"), send = $("send");
     pending = true; send.disabled = true;
     asked.push(question);
-    const start = $("start");
+    const start = $("chat-start");
     if (start && start.parentNode) start.remove();
     const mine = el("div", "msg me", question);
     log.appendChild(mine);
@@ -273,15 +297,29 @@
     const wait = el("article", "msg bot pending");
     const dots = el("span", "dots");
     dots.append(el("i"), el("i"), el("i"));
-    wait.append(dots, el("span", null, "Checking the data"));
+    wait.append(dots, el("span", null, "Analysing the data…"));
     log.appendChild(wait);
     scrollTo(mine);
+
     let card;
     try {
-      const data = await postJSON("/api/ask", { question, ...scope() });
+      // Try AI-powered /api/chat first
+      chatHistory.push({ role: "user", content: question });
+      const data = await postJSON("/api/chat", {
+        question,
+        history: chatHistory.slice(-8),
+        ...scope(),
+      });
+      chatHistory.push({ role: "assistant", content: data.answer || data.text || "" });
       card = renderAnswer(data, false);
-    } catch (e) {
-      card = renderAnswer({ text: e.message, notes: [{ level: "warn", text: "If the server stopped, restart it with python chatbot/server.py." }] }, true);
+    } catch {
+      // Fallback to rule-based /api/ask
+      try {
+        const data = await postJSON("/api/ask", { question, ...scope() });
+        card = renderAnswer(data, false);
+      } catch (e2) {
+        card = renderAnswer({ text: e2.message, notes: [{ level: "warn", text: "If the server stopped, restart it with python run.py." }] }, true);
+      }
     }
     wait.replaceWith(card);
     scrollTo(mine);
@@ -290,15 +328,17 @@
 
   function clearChat(keepHint) {
     const log = $("log");
-    const start = el("section", "start");
-    start.id = "start";
-    start.append(el("h2", null, "Ask anything about the posts"),
-      el("p", null, "Answers are calculated from the data, not guessed. Each one shows how many posts it rests on, so you can judge how far to trust it."));
+    const start = el("section", "chat-start");
+    start.id = "chat-start";
+    const icon = el("div", "chat-start-icon", "🤖");
+    start.append(icon, el("h2", null, "Ask about the data"),
+      el("p", null, "Answers are computed from real collected data. Each answer cites how many posts it is based on."));
     const box = el("div", "starters");
     box.id = "starters";
     start.appendChild(box);
     log.replaceChildren(start);
     asked.length = 0;
+    chatHistory.length = 0;
     fillStarters();
     if (keepHint) $("q").focus({ preventScroll: true });
   }
@@ -316,13 +356,16 @@
   }
 
   function updateScope() {
-    $("scope").textContent = "Answering from: " + (state.source === "demo" ? "demo data" : "my data") + " · " +
+    const s = $("scope");
+    if (!s) return;
+    s.textContent = "Answering from: real data · " +
       (state.platform ? platName(state.platform) : "all platforms") + " · " + (state.brand || "all brands") + ". Change this with the filters above.";
   }
 
-  // ---------- filters, source, banner
+  // ---------- filters
   function fillFilters() {
     const info = state.info;
+    if (!info) return;
     const ps = $("f-platform"), bs = $("f-brand");
     ps.replaceChildren(new Option("All platforms", ""));
     info.platform_status.forEach((p) => {
@@ -346,56 +389,21 @@
 
   function refresh() {
     updateScope();
+    updateBadge();
     if (state.view === "overview") loadOverview();
-  }
-
-  function updateBanner() {
-    const b = $("banner");
-    if (state.source !== "demo") { b.hidden = true; return; }
-    b.replaceChildren();
-    b.appendChild(el("strong", null, "Demo data. "));
-    b.appendChild(document.createTextNode("The brands are fictional and the numbers are made up, only to show how the screens look. Do not use them for conclusions."));
-    const back = el("button", "ghost", "Switch to my data");
-    back.type = "button";
-    back.addEventListener("click", () => setSource("real"));
-    b.appendChild(back);
-    b.hidden = false;
-  }
-
-  async function setSource(src) {
-    if (src === state.source && state.info) return;
-    state.source = src;
-    state.platform = state.brand = "";
-    document.querySelectorAll("[data-source]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.source === src ? "true" : "false"));
-    updateBanner();
-    await loadInfo();
-    clearChat(false);
-    lockAdd();
-    refresh();
-  }
-
-  async function loadInfo() {
-    state.info = await getJSON("/api/info", { source: state.source });
-    fillFilters();
-    fillStarters();
-    updateScope();
   }
 
   // ---------- add data
   const form = () => $("add-form");
-  function lockAdd() {
-    const locked = state.source !== "real";
-    $("add-lock").hidden = !locked;
-    document.querySelectorAll("#view-add input, #view-add select, #view-add textarea, #view-add button").forEach((x) => { x.disabled = locked; });
-  }
 
   function setAddPlatform(key) {
     const f = form();
-    if (f.elements.platform) { f.elements.platform.value = key; applyHints(); }
+    if (f && f.elements.platform) { f.elements.platform.value = key; applyHints(); }
   }
 
   function applyHints() {
     const f = form();
+    if (!f) return;
     const h = PLAT[f.elements.platform.value] || PLAT.instagram;
     $("l-likes").textContent = h.likes ? "(" + h.likes + ")" : "";
     $("l-views").textContent = h.views ? "(" + h.views + ")" : "";
@@ -405,6 +413,7 @@
 
   function initAdd() {
     const f = form(), m = state.meta;
+    if (!f || !m) return;
     const fill = (sel, items, label) => { sel.replaceChildren(); items.forEach((i) => sel.appendChild(new Option(label(i), i.key !== undefined ? i.key : i))); };
     fill(f.elements.platform, m.manual_platforms, (p) => p.name);
     fill(f.elements.brand, m.brands, (b) => b);
@@ -416,7 +425,6 @@
     applyHints();
     f.addEventListener("submit", (e) => { e.preventDefault(); saveOne(); });
     $("import-btn").addEventListener("click", importFile);
-    lockAdd();
   }
 
   function showResult(box, kind, title, problems, actions) {
@@ -440,7 +448,7 @@
     if (need.length) return showResult(box, "bad", "Fill in " + need.map((n) => n[1]).join(", ") + " first.");
     btn.disabled = true;
     try {
-      const out = await postJSON("/api/add_post", { source: state.source, fields });
+      const out = await postJSON("/api/add_post", { fields });
       if (!out.ok) return showResult(box, "bad", "This post was not saved.", out.problems);
       const actions = el("div", "actions");
       const again = el("button", "ghost", "Add another post");
@@ -458,7 +466,7 @@
       loadInfo().catch(() => {});
     } catch (e) {
       showResult(box, "bad", "Could not save.", [e.message]);
-    } finally { btn.disabled = state.source !== "real"; }
+    } finally { btn.disabled = false; }
   }
 
   async function importFile() {
@@ -468,7 +476,7 @@
     btn.disabled = true;
     try {
       const text = await file.text();
-      const out = await postJSON("/api/import", { source: state.source, filename: file.name, text });
+      const out = await postJSON("/api/import", { filename: file.name, text });
       if (!out.ok) return showResult(box, "bad", "The file was not imported.", out.problems);
       const title = out.saved + (out.saved === 1 ? " post saved." : " posts saved.") + (out.rejected ? " " + out.rejected + " rows were not saved." : "");
       showResult(box, out.rejected && !out.saved ? "bad" : "ok", title, out.warning ? [out.warning] : null);
@@ -493,7 +501,7 @@
       if (out.saved) loadInfo().catch(() => {});
     } catch (e) {
       showResult(box, "bad", "Could not import.", [e.message]);
-    } finally { btn.disabled = state.source !== "real"; }
+    } finally { btn.disabled = false; }
   }
 
   // ---------- views
@@ -502,7 +510,7 @@
   function showView(v, focus) {
     state.view = v;
     VIEWS.forEach((n) => { $("view-" + n).hidden = n !== v; });
-    document.querySelectorAll(".tabs a").forEach((a) => {
+    document.querySelectorAll(".tab-link").forEach((a) => {
       if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
     if (v === "overview") loadOverview();
@@ -523,7 +531,6 @@
 
   // ---------- start
   async function init() {
-    document.querySelectorAll("[data-source]").forEach((b) => b.addEventListener("click", () => setSource(b.dataset.source)));
     $("f-platform").addEventListener("change", (e) => setFilter("platform", e.target.value));
     $("f-brand").addEventListener("change", (e) => setFilter("brand", e.target.value));
     $("composer").addEventListener("submit", (e) => { e.preventDefault(); ask($("q").value); });
@@ -539,11 +546,20 @@
       clearChat(false);
     } catch (e) {
       $("cards").replaceChildren(Object.assign(el("div", "empty"), {}));
-      $("cards").firstChild.append(el("h3", null, "Could not reach the data server"), el("p", null, "Start it with python chatbot/server.py and reload this page."));
+      $("cards").firstChild.append(el("h3", null, "Could not reach the data server"), el("p", null, "Start it with python run.py and reload this page."));
       return;
     }
     showView(currentView(), false);
   }
+
+  async function loadInfo() {
+    state.info = await getJSON("/api/info");
+    fillFilters();
+    fillStarters();
+    updateScope();
+    updateBadge();
+  }
+
   init();
 })();
 
@@ -582,10 +598,10 @@
   function chartDefaults() {
     return {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { font: { family: "'Bricolage Grotesque', sans-serif", size: 12 } } } },
+      plugins: { legend: { labels: { font: { family: "'Inter', sans-serif", size: 12 } } } },
       scales: {
-        x: { ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" } },
-        y: { ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" }, beginAtZero: true }
+        x: { ticks: { font: { family: "'JetBrains Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" } },
+        y: { ticks: { font: { family: "'JetBrains Mono', monospace", size: 11 } }, grid: { color: "rgba(128,128,128,.1)" }, beginAtZero: true }
       }
     };
   }
@@ -615,7 +631,7 @@
         plugins: { ...chartDefaults().plugins, legend: { display: false } },
         scales: {
           x: { ...chartDefaults().scales.x, beginAtZero: true },
-          y: { ticks: { font: { family: "'Bricolage Grotesque', sans-serif", size: 12 } }, grid: { display: false } }
+          y: { ticks: { font: { family: "'Inter', sans-serif", size: 12 } }, grid: { display: false } }
         }
       }
     });
@@ -736,73 +752,102 @@
         fetch("/api/dashboard").then(r => r.json()),
       ]);
 
-      // Top brand from summary
-      if (summary.top_brand) {
-        document.getElementById("ri-top-brand").textContent = summary.top_brand;
-        document.getElementById("ri-top-brand-stat").textContent =
+      // Top brand
+      const riBrand = document.getElementById("ri-brand");
+      const riBrandSub = document.getElementById("ri-brand-sub");
+      if (summary.top_brand && riBrand) {
+        riBrand.textContent = summary.top_brand;
+        if (riBrandSub) riBrandSub.textContent =
           summary.top_brand_val
             ? `Median ${summary.metric_used}: ${Math.round(summary.top_brand_val).toLocaleString()}`
             : "Top performer";
       }
 
       // Best format
-      if (summary.best_format) {
-        document.getElementById("ri-top-format").textContent =
+      const riFormat = document.getElementById("ri-format");
+      const riFormatSub = document.getElementById("ri-format-sub");
+      if (summary.best_format && riFormat) {
+        riFormat.textContent =
           summary.best_format.charAt(0).toUpperCase() + summary.best_format.slice(1);
-        document.getElementById("ri-top-format-stat").textContent =
+        if (riFormatSub) riFormatSub.textContent =
           summary.best_format_val
             ? `Median: ${Math.round(summary.best_format_val).toLocaleString()} ${summary.metric_used}`
             : "Best performing format";
       }
 
       // Best day
-      if (summary.best_day) {
-        document.getElementById("ri-top-day").textContent = summary.best_day;
+      const riDay = document.getElementById("ri-day");
+      if (summary.best_day && riDay) {
+        riDay.textContent = summary.best_day;
+      }
+
+      // Best platform
+      const riPlatform = document.getElementById("ri-platform");
+      if (summary.best_platform && riPlatform) {
+        riPlatform.textContent = summary.best_platform.charAt(0).toUpperCase() + summary.best_platform.slice(1);
       }
 
       // Key findings from dashboard sections
-      const findings = document.getElementById("research-findings");
-      findings.replaceChildren();
-      if (dash && dash.sections && dash.sections.length) {
-        dash.sections.slice(0, 6).forEach(sec => {
-          if (sec.answer && sec.answer.text) {
-            const li = document.createElement("li");
-            li.className = "research-finding";
-            li.textContent = `${sec.title}: ${sec.answer.text}`;
-            findings.appendChild(li);
-          }
-        });
-      }
-      if (!findings.children.length) {
-        const li = document.createElement("li");
-        li.className = "research-finding loading";
-        li.textContent = "Add more posts to generate findings.";
-        findings.appendChild(li);
-      }
-
-      // Brand table
-      const tbody = document.getElementById("brand-table-body");
-      tbody.replaceChildren();
-      const brandMap = {};
-      (dash.sections || []).forEach(sec => {
-        if (sec.id === "brands" && sec.answer && sec.answer.blocks) {
-          sec.answer.blocks.forEach(block => {
-            if (block.type === "bars") {
-              block.items.forEach(item => {
-                brandMap[item.label] = { n: item.n, value: item.display };
-              });
+      const findings = document.getElementById("findings");
+      if (findings) {
+        findings.replaceChildren();
+        if (dash && dash.sections && dash.sections.length) {
+          dash.sections.slice(0, 6).forEach(sec => {
+            if (sec.answer && sec.answer.text) {
+              const li = document.createElement("li");
+              li.textContent = `${sec.title}: ${sec.answer.text}`;
+              findings.appendChild(li);
             }
           });
         }
-      });
-      const brands = ["Khaadi","Sapphire","Gul Ahmed","Maria B","Sana Safinaz"];
-      brands.forEach(brand => {
-        const info = brandMap[brand] || {};
-        const tr = document.createElement("tr");
-        const dot = `<span class="brand-dot" style="background:${BRAND_COLORS[brand] || DEFAULT_COLOR}"></span>`;
-        tr.innerHTML = `<td>${dot}${brand}</td><td class="r">${info.n || "—"}</td><td class="r">${info.value || "—"}</td><td class="r">Instagram · TikTok · FB · YT</td>`;
-        tbody.appendChild(tr);
-      });
+        if (!findings.children.length) {
+          const li = document.createElement("li");
+          li.className = "muted";
+          li.textContent = "Add more posts to generate findings.";
+          findings.appendChild(li);
+        }
+      }
+
+      // Brand table
+      const tbody = document.getElementById("brand-tbl-body");
+      if (tbody) {
+        tbody.replaceChildren();
+        const brandMap = {};
+        (dash.sections || []).forEach(sec => {
+          if (sec.id === "brands" && sec.answer && sec.answer.blocks) {
+            sec.answer.blocks.forEach(block => {
+              if (block.type === "bars") {
+                block.items.forEach(item => {
+                  brandMap[item.label] = { n: item.n, value: item.display };
+                });
+              }
+            });
+          }
+        });
+        const brands = ["Khaadi","Sapphire","Gul Ahmed","Maria B","Sana Safinaz"];
+        brands.forEach(brand => {
+          const info = brandMap[brand] || {};
+          const tr = document.createElement("tr");
+          const dotColor = BRAND_COLORS[brand] || DEFAULT_COLOR;
+          const td1 = document.createElement("td");
+          const dot = document.createElement("span");
+          dot.className = "brand-dot";
+          dot.style.background = dotColor;
+          td1.appendChild(dot);
+          td1.appendChild(document.createTextNode(brand));
+          const td2 = document.createElement("td");
+          td2.className = "r";
+          td2.textContent = info.n || "—";
+          const td3 = document.createElement("td");
+          td3.className = "r";
+          td3.textContent = info.value || "—";
+          const td4 = document.createElement("td");
+          td4.className = "r";
+          td4.textContent = "YouTube";
+          tr.append(td1, td2, td3, td4);
+          tbody.appendChild(tr);
+        });
+      }
     } catch (e) {
       console.error("Research load error:", e);
     }

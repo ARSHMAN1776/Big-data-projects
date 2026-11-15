@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+data/content_detective.db
+data/content_detective.db-shm
+data/content_detective.db-wal

@@ -105,40 +105,16 @@ def seed_all() -> int:
     if not raw_dir.exists():
         return 0
 
-    # Also check demo dir
-    demo_dir = ROOT / "data" / "demo"
-
     store = eng.DataStore(raw_dir)
     df = store.frame()
 
-    # Try to also load demo CSV if it exists
-    frames = [df] if not df.empty else []
-    if demo_dir.exists():
-        for csv_path in demo_dir.glob("*.csv"):
-            try:
-                extra = pd.read_csv(csv_path, encoding="utf-8-sig")
-                # Normalize columns to match engine format
-                if "caption" in extra.columns and "text" not in extra.columns:
-                    extra["text"] = extra["caption"]
-                if "post_id" not in extra.columns and "post_id_ext" in extra.columns:
-                    extra["post_id"] = extra["post_id_ext"]
-                # Coerce numeric
-                for c in ("likes", "comments", "shares", "views", "followers", "hour_pkt"):
-                    if c in extra.columns:
-                        extra[c] = pd.to_numeric(extra[c], errors="coerce")
-                frames.append(extra)
-            except Exception as exc:
-                print(f"  [seed] skipped {csv_path.name}: {exc}", flush=True)
-
-    if not frames:
+    if df.empty:
         print("  [seed] no data to seed", flush=True)
         return 0
 
-    combined = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
-
     db = SessionLocal()
     try:
-        added = seed_from_dataframe(combined, db)
+        added = seed_from_dataframe(df, db)
         print(f"  [seed] seeded {added} new posts into SQLite", flush=True)
         return added
     finally:
